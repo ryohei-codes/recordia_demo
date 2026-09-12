@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RECORDIA — UIサンプル</title>
+<style>
+  :root{
+    --primary:#6D3FE0;
+    --primary-dark:#4B24A8;
+    --primary-light:#EFE9FB;
+    --bg:#F6F5FB;
+    --card:#FFFFFF;
+    --border:#E5E1F3;
+    --text:#2B2A33;
+    --text-muted:#7A7787;
+    --green:#1E9E6B;
+    --green-bg:#E6F7EF;
+    --yellow:#B8860B;
+    --yellow-bg:#FFF6DE;
+    --gray:#8A8794;
+    --gray-bg:#EFEDF4;
+    --red:#D0453A;
+    --red-bg:#FCEBEA;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  .app{ display:flex; min-height:100vh; }
+  .sidebar{
+    width:220px;
+    background:linear-gradient(180deg,var(--primary-dark),var(--primary));
+    color:#fff;
+    display:flex;
+    flex-direction:column;
+    padding:24px 16px;
+    flex-shrink:0;
+  }
+  .logo{
+    font-size:22px;
+    font-weight:800;
+    letter-spacing:1px;
+    margin-bottom:6px;
+  }
+  .tagline{
+    font-size:11px;
+    color:rgba(255,255,255,0.7);
+    margin-bottom:32px;
+  }
+  .nav-item{
+    display:block;
+    width:100%;
+    text-align:left;
+    background:transparent;
+    border:none;
+    color:rgba(255,255,255,0.85);
+    padding:11px 12px;
+    border-radius:8px;
+    font-size:14px;
+    cursor:pointer;
+    margin-bottom:4px;
+    transition:background .15s;
+  }
+  .nav-item:hover{ background:rgba(255,255,255,0.12); }
+  .nav-item.active{ background:rgba(255,255,255,0.22); font-weight:700; }
+  .sidebar-footer{
+    margin-top:auto;
+    font-size:12px;
+    padding-top:16px;
+    border-top:1px solid rgba(255,255,255,0.2);
+  }
+  .sidebar-footer .role{ color:rgba(255,255,255,0.65); }
+  .content{ flex:1; padding:32px 40px; overflow-x:auto; }
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; }
+  h1{ font-size:20px; margin:0 0 4px 0; }
+  .subtitle{ color:var(--text-muted); font-size:13px; margin-bottom:24px; }
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:20px 24px;
+    margin-bottom:20px;
+    box-shadow:0 1px 2px rgba(30,20,60,0.04);
+  }
+  .filter-row{ display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end; }
+  .field{ display:flex; flex-direction:column; gap:6px; font-size:12px; color:var(--text-muted); }
+  .field input, .field select, .field textarea{
+    font-family:inherit;
+    font-size:13px;
+    padding:8px 10px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#fcfbff;
+    color:var(--text);
+    min-width:150px;
+  }
+  .field textarea{ min-width:260px; resize:vertical; }
+  .btn{
+    border:none;
+    border-radius:8px;
+    padding:9px 18px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .btn-primary{ background:var(--primary); color:#fff; }
+  .btn-primary:hover{ background:var(--primary-dark); }
+  .btn-outline{ background:#fff; color:var(--primary); border:1px solid var(--primary); }
+  .btn-danger-outline{ background:#fff; color:var(--red); border:1px solid var(--red); }
+  .btn-sm{ padding:6px 12px; font-size:12px; }
+  table{ width:100%; border-collapse:collapse; font-size:13px; }
+  th{ text-align:left; color:var(--text-muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.03em; padding:10px 12px; border-bottom:1px solid var(--border); }
+  td{ padding:12px; border-bottom:1px solid var(--border); vertical-align:middle; }
+  tr:hover td{ background:#FBFAFF; }
+  .badge{ display:inline-block; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; }
+  .badge-green{ background:var(--green-bg); color:var(--green); }
+  .badge-yellow{ background:var(--yellow-bg); color:var(--yellow); }
+  .badge-gray{ background:var(--gray-bg); color:var(--gray); }
+  .link{ color:var(--primary); font-size:12px; text-decoration:none; font-weight:600; }
+  .toggle-group{ display:inline-flex; border:1px solid var(--primary); border-radius:8px; overflow:hidden; margin-bottom:20px; }
+  .toggle-group button{
+    border:none; background:#fff; color:var(--primary); padding:9px 20px; font-size:13px; font-weight:700; cursor:pointer;
+  }
+  .toggle-group button.active{ background:var(--primary); color:#fff; }
+  .form-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px 20px; }
+  .form-grid .field.span2{ grid-column:span 2; }
+  .form-grid .field.span3{ grid-column:span 3; }
+  .section-label{ font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:.04em; margin:24px 0 12px 0; }
+  .only-acq, .only-disp{ display:none; }
+  .mode-acq .only-acq{ display:flex; }
+  .mode-disp .only-disp{ display:flex; }
+  .check-card{ display:flex; justify-content:space-between; align-items:center; padding:16px; border:1px solid var(--border); border-radius:10px; margin-bottom:12px; background:#fcfbff; }
+  .check-card .meta{ font-size:12px; color:var(--text-muted); margin-top:4px; }
+  .check-actions{ display:flex; gap:8px; }
+  .detail-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:8px; }
+  .detail-item .label{ font-size:11px; color:var(--text-muted); margin-bottom:4px; }
+  .detail-item .value{ font-size:14px; font-weight:600; }
+  .csv-columns{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; font-size:13px; }
+  .csv-columns label{ display:flex; align-items:center; gap:6px; }
+  .note{ font-size:12px; color:var(--text-muted); margin-top:10px; }
+
+  @media (max-width: 768px){
+    .app{ flex-direction:column; min-height:auto; }
+    .sidebar{
+      width:100%;
+      flex-direction:row;
+      align-items:center;
+      padding:12px 16px;
+      gap:14px;
+    }
+    .sidebar .logo{ font-size:18px; margin-bottom:0; white-space:nowrap; }
+    .tagline{ display:none; }
+    .sidebar nav{
+      display:flex;
+      gap:6px;
+      overflow-x:auto;
+      flex:1;
+      -webkit-overflow-scrolling:touch;
+    }
+    .nav-item{ white-space:nowrap; margin-bottom:0; padding:8px 12px; font-size:12px; flex-shrink:0; }
+    .sidebar-footer{ display:none; }
+    .content{ padding:16px; }
+    h1{ font-size:17px; }
+    .subtitle{ margin-bottom:16px; }
+    .card{ padding:16px; }
+    .filter-row{ gap:10px; }
+    .field{ flex:1 1 140px; }
+    .field input, .field select, .field textarea{ min-width:0; width:100%; }
+    .form-grid{ grid-template-columns:1fr; }
+    .form-grid .field.span2, .form-grid .field.span3{ grid-column:span 1; }
+    .detail-grid{ grid-template-columns:repeat(2,1fr); }
+    .csv-columns{ grid-template-columns:repeat(2,1fr); }
+    table{ min-width:640px; }
+    .card[style*="padding:0"]{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    .check-card{ flex-direction:column; align-items:flex-start; gap:12px; }
+    .check-actions{ width:100%; }
+    .check-actions .btn{ flex:1; }
+    .toggle-group{ width:100%; display:flex; }
+    .toggle-group button{ flex:1; }
+  }
+
+  @media (max-width: 480px){
+    .detail-grid{ grid-template-columns:1fr; }
+    .csv-columns{ grid-template-columns:1fr; }
+    .logo{ font-size:16px; }
+    h1{ font-size:16px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">RECORDIA</div>
+    <div class="tagline">信頼を記録し、未来へつなぐ。</div>
+    <nav>
+      <button class="nav-item active" data-tab="list">📋 台帳一覧・検索</button>
+      <button class="nav-item" data-tab="register">➕ 新規登録</button>
+      <button class="nav-item" data-tab="check">✅ ダブルチェック</button>
+      <button class="nav-item" data-tab="detail">📄 レコード詳細</button>
+      <button class="nav-item" data-tab="csv">⬇️ CSV出力</button>
+    </nav>
+    <div class="sidebar-footer">Albert Trebla<br /><span class="role">管理者</span></div>
+  </aside>
+
+  <main class="content">
+
+    <!-- 1. 台帳一覧・検索 -->
+    <section id="list" class="tab-panel active">
+      <h1>台帳一覧・検索</h1>
+      <div class="subtitle">仕入・払出記録を検索・絞り込んで確認できます</div>
+      <div class="card">
+        <div class="filter-row">
+          <div class="field"><label>取引日(从)</label><input type="date" value="2026-09-01" /></div>
+          <div class="field"><label>取引日(至)</label><input type="date" value="2026-09-12" /></div>
+          <div class="field"><label>相手方氏名</label><input type="text" placeholder="例：山田 太郎" /></div>
+          <div class="field"><label>品目</label><select><option>すべて</option><option>宝石</option><option>時計</option><option>バッグ</option></select></div>
+          <div class="field"><label>管理番号</label><input type="text" placeholder="01012603" /></div>
+          <div class="field"><label>ステータス</label><select><option>すべて</option><option>確定</option><option>ダブルチェック待ち</option><option>入力中</option></select></div>
+          <button class="btn btn-primary">検索</button>
+        </div>
+      </div>
+      <div class="card" style="padding:0;">
+        <table>
+          <thead><tr>
+            <th>管理番号</th><th>品目</th><th>ブランド</th><th>商品名</th><th>区分</th><th>取引日</th><th>総額(税込)</th><th>ステータス</th><th></th>
+          </tr></thead>
+          <tbody>
+            <tr><td>01012603</td><td>宝石</td><td>Damiani</td><td>リング D0.30ct</td><td>仕入</td><td>2026-09-10</td><td>¥2,200</td><td><span class="badge badge-green">確定</span></td><td><a class="link" data-goto="detail">詳細</a></td></tr>
+            <tr><td>01012604</td><td>時計</td><td>SEIKO</td><td>自動巻時計</td><td>払出</td><td>2026-09-11</td><td>¥38,000</td><td><span class="badge badge-yellow">ダブルチェック待ち</span></td><td><a class="link" data-goto="detail">詳細</a></td></tr>
+            <tr><td>01012605</td><td>バッグ</td><td>—</td><td>レザートートバッグ</td><td>仕入</td><td>2026-09-12</td><td>¥12,000</td><td><span class="badge badge-gray">入力中</span></td><td><a class="link" data-goto="detail">詳細</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 2. 新規登録 -->
+    <section id="register" class="tab-panel">
+      <h1>新規登録</h1>
+      <div class="subtitle">取引を1件登録します（登録後はダブルチェック待ちになります）</div>
+      <div id="registerForm" class="mode-acq">
+        <div class="toggle-group" id="modeToggle">
+          <button class="active" data-mode="acq">仕入登録</button>
+          <button data-mode="disp">払出登録</button>
+        </div>
+        <div class="card">
+          <div class="section-label">法定必須項目</div>
+          <div class="form-grid">
+            <div class="field"><label>取引年月日</label><input type="date" /></div>
+            <div class="field only-acq"><label>仕入区分</label><select><option>仕入れ</option><option>交換</option><option>その他</option></select></div>
+            <div class="field only-disp"><label>課税区分</label><select><option>課税</option><option>非課税</option></select></div>
+            <div class="field"><label>管理番号</label><input type="text" placeholder="自動採番 or 既存IDを選択" /></div>
+            <div class="field"><label>品目</label><select><option>宝石</option><option>時計</option><option>バッグ</option><option>アクセサリー</option></select></div>
+            <div class="field"><label>数量</label><input type="number" value="1" /></div>
+            <div class="field"><label>ブランド</label><input type="text" /></div>
+            <div class="field span2"><label>商品名・特徴</label><input type="text" placeholder="型番・シリアル・状態など" /></div>
+          </div>
+
+          <div class="section-label">相手方情報・本人確認</div>
+          <div class="form-grid">
+            <div class="field"><label>相手方区分</label><select><option>個人</option><option>法人</option></select></div>
+            <div class="field span2"><label>相手方氏名／法人名</label><input type="text" /></div>
+            <div class="field span2"><label>住所</label><input type="text" /></div>
+            <div class="field"><label>職業</label><input type="text" /></div>
+            <div class="field"><label>本人確認の方法</label><select><option>運転免許証</option><option>マイナンバーカード</option><option>パスポート</option></select></div>
+            <div class="field only-acq"><label>買取承諾書URL</label><input type="text" placeholder="Google DriveのURL" /></div>
+          </div>
+
+          <div class="section-label">金額</div>
+          <div class="form-grid">
+            <div class="field"><label>取引金額(税抜)</label><input type="number" placeholder="¥" /></div>
+            <div class="field"><label>取引金額(税込)</label><input type="number" placeholder="¥" /></div>
+            <div class="field"><label>支払方法</label><select><option>振込</option><option>現金</option></select></div>
+            <div class="field only-disp"><label>粗利率</label><input type="text" placeholder="自動計算" disabled /></div>
+            <div class="field"><label>請求書URL</label><input type="text" /></div>
+          </div>
+
+          <div style="margin-top:24px; display:flex; gap:10px;">
+            <button class="btn btn-primary">登録してダブルチェック依頼</button>
+            <button class="btn btn-outline">一時保存</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. ダブルチェック -->
+    <section id="check" class="tab-panel">
+      <h1>ダブルチェック</h1>
+      <div class="subtitle">入力済みレコードを確認・承認します</div>
+      <div class="check-card">
+        <div>
+          <div><b>01012604</b> — 時計 / SEIKO 自動巻時計 を　払出登録</div>
+          <div class="meta">登録者：井上さん　・　登録日時：2026-09-11 18:42</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn btn-primary btn-sm">承認</button>
+          <button class="btn btn-danger-outline btn-sm">差し戻し</button>
+        </div>
+      </div>
+      <div class="check-card">
+        <div>
+          <div><b>01012605</b> — バッグ / レザートートバッグ を　仕入登録</div>
+          <div class="meta">登録者：うーちゃん　・　登録日時：2026-09-12 09:05</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn btn-primary btn-sm">承認</button>
+          <button class="btn btn-danger-outline btn-sm">差し戻し</button>
+        </div>
+      </div>
+      <div class="note">※ 差し戻しを選ぶと理由入力欄が表示され、元レコードは上書きせず訂正依頼状態になります(Append-Only)。</div>
+    </section>
+
+    <!-- 4. レコード詳細 -->
+    <section id="detail" class="tab-panel">
+      <h1>レコード詳細：01012603</h1>
+      <div class="subtitle">宝石・ Damiani リング D0.30ct（仕入）</div>
+      <div class="card">
+        <div class="detail-grid">
+          <div class="detail-item"><div class="label">区分</div><div class="value">仕入れ</div></div>
+          <div class="detail-item"><div class="label">取引年月日</div><div class="value">2026-09-10</div></div>
+          <div class="detail-item"><div class="label">相手方</div><div class="value">○○株式会社</div></div>
+          <div class="detail-item"><div class="label">本人確認</div><div class="value">運転免許証</div></div>
+          <div class="detail-item"><div class="label">取引金額(税込)</div><div class="value">¥2,200</div></div>
+          <div class="detail-item"><div class="label">支払方法</div><div class="value">振込</div></div>
+          <div class="detail-item"><div class="label">ステータス</div><div class="value"><span class="badge badge-green">確定</span></div></div>
+          <div class="detail-item"><div class="label">登録者</div><div class="value">Albert Trebla</div></div>
+        </div>
+      </div>
+      <div class="card" style="padding:0;">
+        <table>
+          <thead><tr><th>操作種別</th><th>操作者</th><th>日時</th><th>変更内容</th></tr></thead>
+          <tbody>
+            <tr><td>新規登録</td><td>Albert Trebla</td><td>2026-09-10 10:12</td><td>レコード作成</td></tr>
+            <tr><td>ダブルチェック承認</td><td>井上さん</td><td>2026-09-10 15:30</td><td>ステータス：ダブルチェック待ち → 確定</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">※ 訂正が発生した場合も元レコードは削除・上書きされず、訂正レコードが新しく追記され、ここに履歴として並びます。</div>
+    </section>
+
+    <!-- 5. CSV出力 -->
+    <section id="csv" class="tab-panel">
+      <h1>CSV出力</h1>
+      <div class="subtitle">期間・項目を指定してファイル出力します</div>
+      <div class="card">
+        <div class="filter-row" style="margin-bottom:20px;">
+          <div class="field"><label>期間(从)</label><input type="date" value="2026-09-01" /></div>
+          <div class="field"><label>期間(至)</label><input type="date" value="2026-09-12" /></div>
+          <div class="field"><label>対象区分</label><select><option>すべて</option><option>仕入のみ</option><option>払出のみ</option></select></div>
+        </div>
+        <div class="section-label">出力項目を選択</div>
+        <div class="csv-columns">
+          <label><input type="checkbox" checked />管理番号</label>
+          <label><input type="checkbox" checked />取引年月日</label>
+          <label><input type="checkbox" checked />区分</label>
+          <label><input type="checkbox" checked />品目・商品名</label>
+          <label><input type="checkbox" checked />相手方情報</label>
+          <label><input type="checkbox" checked />本人確認方法</label>
+          <label><input type="checkbox" checked />金額(税抜/税込)</label>
+          <label><input type="checkbox" />請求書URL</label>
+          <label><input type="checkbox" />登録者・登録日時</label>
+          <label><input type="checkbox" />ステータス</label>
+        </div>
+        <div style="margin-top:24px;">
+          <button class="btn btn-primary">CSVをダウンロード</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const navItems = document.querySelectorAll('.nav-item');
+  const panels = document.querySelectorAll('.tab-panel');
+  function showTab(name){
+    navItems.forEach(n => n.classList.toggle('active', n.dataset.tab === name));
+    panels.forEach(p => p.classList.toggle('active', p.id === name));
+  }
+  navItems.forEach(btn => btn.addEventListener('click', () => showTab(btn.dataset.tab)));
+  document.querySelectorAll('[data-goto]').forEach(el => {
+    el.addEventListener('click', (e) => { e.preventDefault(); showTab(el.dataset.goto); });
+  });
+
+  const modeToggle = document.getElementById('modeToggle');
+  const registerForm = document.getElementById('registerForm');
+  modeToggle.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      modeToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      registerForm.classList.remove('mode-acq','mode-disp');
+      registerForm.classList.add(btn.dataset.mode === 'acq' ? 'mode-acq' : 'mode-disp');
+    });
+  });
+</script>
+</body>
+</html>
